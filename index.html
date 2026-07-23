@@ -3,46 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Custom Metro QR Redirector</title>
-    <!-- Include the free open-source QR scanning library -->
-    <script src="https://unpkg.com"></script>
+    <title>Metro Ticket Redirector</title>
+    <!-- Load the QR Code Scanner Library from CDN -->
+    <script src="https://unpkg.com" type="text/javascript"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
-        #reader { width: 100%; max-width: 500px; margin: 0 auto; border: 2px solid #333; border-radius: 8px; }
-        h2 { color: #333; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #status {
+            font-weight: bold;
+            margin-top: 15px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Scan your Metro Ticket</h2>
+    <h1>Scan your Metro Ticket</h1>
     <div id="reader"></div>
+    <div id="status">Waiting for camera permission...</div>
 
     <script>
-        // Define your target metro ticket data string
-        const targetMetroData = "EaMcsrmnkD1ZL9OSk36gKUsp56NNKvLIDJbb9zsoA+CuTu3IT9myLPqXDrXT/EpAxyGA";
+        // TARGET ENCRYPTED STRING FROM YOUR METRO TICKET
+        const targetTicketCode = "EaMcsrmnkD1ZL9OSk36gKUsp56NNKvLIDJbb9zsoA+CuTu3IT9myLPqXDrXT/EpAxyGA";
         
-        // Define where you want it to take you (Change this URL to whatever you want!)
-        const destinationURL = "https://youtube.com"; 
+        // CHANGE THIS URL TO WHATEVER WEBSITE YOU WANT TO OPEN!
+        const destinationUrl = "https://www.youtube.com/watch?v=KIzCpTA2p5Y"; 
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Clean up any hidden spaces or line breaks from the scan
-            const cleanedText = decodedText.trim();
-
-            // Check if the scanned code matches your specific metro ticket
-            if (cleanedText === targetMetroData) {
-                alert("Ticket recognized! Redirecting...");
-                window.location.href = destinationURL; // Open the website
-                html5QrcodeScanner.clear(); // Stop the camera
+            // Trim whitespace to ensure an exact match
+            const scannedText = decodedText.trim();
+            document.getElementById('status').innerText = "Scanned code successfully!";
+            
+            // Check if the scanned ticket matches your specific ticket code
+            if (scannedText === targetTicketCode) {
+                document.getElementById('status').innerText = "Match found! Redirecting...";
+                document.getElementById('status').style.color = "green";
+                window.location.href = destinationUrl;
             } else {
-                alert("Scanned a different code: " + cleanedText);
+                document.getElementById('status').innerText = "Scanned a different code: " + scannedText;
+                document.getElementById('status').style.color = "orange";
             }
         }
 
-        // Initialize the camera scanner on the webpage
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 250 }
+        function onScanFailure(error) {
+            // Quietly handle scanning adjustments
+        }
+
+        // Initialize the scanner container
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { fps: 10, qrbox: {width: 250, height: 250} }, 
+            /* verbose= */ false
         );
-        html5QrcodeScanner.render(onScanSuccess);
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        
+        // Update status text once library initializes
+        setTimeout(() => {
+            document.getElementById('status').innerText = "Position your ticket's QR code in front of the camera.";
+        }, 1000);
     </script>
 </body>
 </html>
