@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Custom Metro QR Redirector</title>
+    <!-- Include the free open-source QR scanning library -->
+    <script src="https://unpkg.com"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        #reader { width: 100%; max-width: 500px; margin: 0 auto; border: 2px solid #333; border-radius: 8px; }
+        h2 { color: #333; }
+    </style>
+</head>
+<body>
+
+    <h2>Scan your Metro Ticket</h2>
+    <div id="reader"></div>
+
+    <script>
+        // Define your target metro ticket data string
+        const targetMetroData = "EaMcsrmnkD1ZL9OSk36gKUsp56NNKvLIDJbb9zsoA+CuTu3IT9myLPqXDrXT/EpAxyGA";
+        
+        // Define where you want it to take you (Change this URL to whatever you want!)
+        const destinationURL = "https://youtube.com"; 
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Clean up any hidden spaces or line breaks from the scan
+            const cleanedText = decodedText.trim();
+
+            // Check if the scanned code matches your specific metro ticket
+            if (cleanedText === targetMetroData) {
+                alert("Ticket recognized! Redirecting...");
+                window.location.href = destinationURL; // Open the website
+                html5QrcodeScanner.clear(); // Stop the camera
+            } else {
+                alert("Scanned a different code: " + cleanedText);
+            }
+        }
+
+        // Initialize the camera scanner on the webpage
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 }
+        );
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
